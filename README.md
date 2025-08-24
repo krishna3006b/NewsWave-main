@@ -33,5 +33,5 @@ This project is licensed under the MIT License
 
 ---
 
-**NewsWave** is committed to ensuring free and open journalism for all, where truth and security are prioritized
+**NewsWave** is committed to ensuring free and open journalism for all, where truth and security are prioritized.
 

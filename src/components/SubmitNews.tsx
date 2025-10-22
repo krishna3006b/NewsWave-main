@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, Image, Link2, Shield, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { connectWallet, uploadNews, getAllNews, NewsItem } from '@/lib/ethereum';
+import { uploadNews, getAllNews, NewsItem } from '@/lib/ethereum';
 import { uploadToIPFS, getFromIPFS, NewsContent } from '@/lib/ipfs';
 import { verifyNewsContent } from '@/lib/openai';
-import { ethers } from 'ethers';
 import { truncateAddress } from '@/lib/utils';
+import { useWallet } from '@/contexts/WalletContext';
 
 const SubmitNews: React.FC = () => {
+  const { account: walletAddress, connectBrowserWallet, isConnecting } = useWallet();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [link, setLink] = useState('');
@@ -17,46 +18,10 @@ const SubmitNews: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<'text' | 'file' | 'link'>('text');
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
     fetchNews();
-    checkWallet();
-
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', (accounts: string[]) => {
-        if (accounts.length > 0) {
-          setWalletAddress(accounts[0]);
-          toast({
-            title: 'Wallet Connected',
-            description: `Connected to ${truncateAddress(accounts[0])}`,
-          });
-        } else {
-          setWalletAddress(null);
-          toast({
-            title: 'Wallet Disconnected',
-            description: 'Your wallet has been disconnected',
-            variant: 'destructive',
-          });
-        }
-      });
-    }
   }, []);
-
-  const checkWallet = async () => {
-    if (window.ethereum) {
-      try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const accounts = await provider.listAccounts();
-        if (accounts.length > 0) {
-          setWalletAddress(accounts[0].address);
-        }
-      } catch (error) {
-        console.error('Failed to check wallet:', error);
-      }
-    }
-  };
 
   const fetchNews = async () => {
     setLoading(true);
@@ -91,24 +56,10 @@ const SubmitNews: React.FC = () => {
   };
 
   const handleConnect = async () => {
-    if (isConnecting) return;
-    setIsConnecting(true);
     try {
-      const address = await connectWallet();
-      setWalletAddress(address);
-      toast({
-        title: 'Wallet Connected',
-        description: `Connected to ${truncateAddress(address)}`,
-      });
+      await connectBrowserWallet();
     } catch (error) {
       console.error('Failed to connect wallet:', error);
-      toast({
-        title: 'Connection Failed',
-        description: 'Failed to connect wallet. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsConnecting(false);
     }
   };
 

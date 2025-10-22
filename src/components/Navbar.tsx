@@ -100,14 +100,18 @@ const Navbar: React.FC = () => {
             >
               News Feed
             </Link>
-            <Button
-              className="bg-truthwave-500 hover:bg-truthwave-600 transition-colors w-full"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Submit News
-            </Button>
+            <Link to="/submit">
+              <Button
+                className="bg-truthwave-500 hover:bg-truthwave-600 transition-colors w-full"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Submit News
+              </Button>
+            </Link>
+            <div className="pt-4 border-t border-gray-200">
+              <WalletConnect variant="mobile" />
+            </div>
           </div>
-          <WalletConnect />
         </div>
       )}
     </header>
